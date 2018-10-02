@@ -169,7 +169,7 @@ def bitmex(symbols: list):
 class BitmexCalendar(TradingCalendar):
     @property
     def name(self):
-        return "bitmex"
+        return "bitxex"
 
     @property
     def tz(self):
@@ -189,51 +189,13 @@ class BitmexCalendar(TradingCalendar):
             weekmask='Mon Tue Wed Thu Fri Sat Sun'
         )
 
-
-# if __name__ == '__main__':
-#     symbols = ['XBTUSD', 'XBTU14']
-
-#     start = pd.Timestamp('2018-06-01', tz='utc')
-#     end = pd.Timestamp('2018-06-10', tz='utc')
-
-#     cache = dict()
-#     d = dict()
-
-#     metadata = pd.DataFrame(
-#         np.empty(
-#             len(symbols),
-#             dtype=[
-#                 ('symbol', 'str'),
-#                 ('root_symbol', 'str'),
-#                 ('asset_name', 'str'),
-#                 ('tick_size', 'float'),
-#                 ('expiration_date', 'datetime64[ns]')
-#             ]))
-
-#     def pricing_iter(metadata, symbols, start_session, end_session, cache):
-#         sid = 0
-#         for symbol in symbols:
-#             _get_metadata(sid, symbol, metadata)
-#             for day in pd.date_range(start_session, end_session, freq='D', closed='left'):
-#                 key = symbol+'-'+day.strftime("%Y-%m-%d")
-#                 if key not in cache:
-#                     cache[key] = _get_minute_bar(symbol, day)
-#                 yield sid, cache[key]
-#             sid += 1
-    
-#     for sid, cah in pricing_iter(metadata, symbols, start, end, cache):
-#         d[sid] = cah
-#     print()
-
 if __name__ == '__main__':
-    register_calendar('bitmex', BitmexCalendar())
-    deregister_calendar('NYSE')
-    register_calendar_alias('NYSE', 'bitmex', force=False)
+    register_calendar('bitxex', BitmexCalendar())
 
     register(
-        'bitmex',
+        'bitxex',
         bitmex(['XBTUSD']),
-        calendar_name='bitmex',
-        start_session=pd.Timestamp('2018-06-01', tz='utc'),
+        calendar_name='bitxex',
+        start_session=pd.Timestamp('2018-05-20', tz='utc'),
         end_session=pd.Timestamp('2018-06-10', tz='utc'),
         minutes_per_day=24*60)

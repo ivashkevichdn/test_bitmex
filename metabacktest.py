@@ -11,12 +11,26 @@ class Strategy(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def signals(self):
+    def get_signals(self):
         """
         Необходимо вернуть DataFrame с символами, содержащий сигналы для открытия длинной 
         или короткой позиции, или удержания таковой  (1, -1 or 0).
         """
-        raise NotImplementedError("Should implement signals()!")
+        raise NotImplementedError("Should implement get_signals()!")
+    
+    @abstractmethod
+    def get_bars(self):
+        """
+        Возвращает объект DataFrame с рыночными данными.
+        """
+        raise NotImplementedError("Should implement get_bars()!")
+
+    @abstractmethod
+    def get_symbol(self):
+        """
+        Возвращает объект DataFrame символ инструмента.
+        """
+        raise NotImplementedError("Should implement get_symbol()!")
 
 class Portfolio(object):
     """
@@ -34,14 +48,6 @@ class Portfolio(object):
         суммы позиций и доступных средств, доходов/убытков во временной период бара..
         """
         raise NotImplementedError("Should implement backtest()!")
-    
-    @abstractmethod
-    def get_positions(self):
-        """
-        Возвращает DataFrame как распределяются позиции 
-        в портфолио на основе доступных средств и выданных сигналов.
-        """
-        raise NotImplementedError("Should implement generate()!")
     
     @abstractmethod
     def get_portfolio(self):

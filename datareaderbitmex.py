@@ -13,11 +13,19 @@ from os import path, mkdir
 
 class DataReaderBitmex:
     """
+    Класс для получение данных с BitMex при этом он кэширует данные
 
+    Требования:
+        path_cash  - Путь к кэшу
+        symbol  - Символ акцива в bitmex`е.
+        data_frequency - Частота запрашиваемых курсов акцивов в bitmex.
+        test - Работать с bitmex в тестовом режиме.
+        api_key - Key зарегистрированного пользователя в bitmex.
+        api_secret - Секретный код зарегистрированного пользователя в bitmex.
     """
 
     def __init__(self,
-                 path_cash: str = './cashdata',
+                 path_cash: str = './cachebitmex',
                  symbol: str = 'XBTUSD',
                  data_frequency: str = '1m',
                  test: bool = True,
@@ -101,7 +109,7 @@ class DataReaderBitmex:
             try:
                 [data, header] = self.client.Trade.Trade_getBucketed(
                     symbol=self.symbol,
-                    data_frequency=self.data_frequency,
+                    binSize=self.data_frequency,
                     start=start,
                     startTime=start_time,
                     endTime=end_time,
@@ -182,8 +190,8 @@ class DataReaderBitmex:
                 x_ratelimit_reset = int(
                     header.headers._store['x-ratelimit-reset'][1])
 
-                print('Огрпаничение пакетов:', x_ratelimit_limit,
-                      'Остаток пакетов:', x_ratelimit_remainind)
+                print('DEBUG: Ограничение пакетов:', x_ratelimit_limit,
+                      'Обратный счетчик пакетов:', x_ratelimit_remainind)
                 # +++++++++++++++++++++++++++
                 # Делаем задержку дабы лимитирующий счетчик не тикал на уменьшение.
                 # Можно и 1,5 секунды, но сделаем на верняка - 2 сек.
@@ -291,14 +299,14 @@ class DataReaderBitmex:
 if __name__ == "__main__":
 
     # Путь нашего локального кэша-данных
-    path_cache = '/home/dmiv/.cachebitmex'
+    path_cache = './cachebitmex'
 
     # Контракт
     symbol = 'XBTUSD'
 
     # Период запрошаемых данных
     start_session = pd.to_datetime('2018-6-1', utc=True)
-    end_session = pd.to_datetime('2018-6-4', utc=True)
+    end_session = pd.to_datetime('2018-9-1', utc=True)
 
     # Частота
     data_frequency = '1m'
@@ -306,9 +314,11 @@ if __name__ == "__main__":
     # Загрузим данные
     dR = DataReaderBitmex(path_cash=path_cache,
                           symbol=symbol, data_frequency=data_frequency)
-    bars = dR.get_bars(start_session, end_session)
-    bars['symbol'] = 'btc_usd'
+    df = dR.get_bars(start_session, end_session)
+    df['symbol'] = 'btc_usd'
 
-    bars.to_csv('bitmex_2018-6-1_2018-9-1.csv')
+    bars = df.copy()
+    bars.set_index('symbol', inplace=True)
+    bars = bars.assign(last_traded=df.index)
 
-    print('++++++++++END!!!++++++++++')
+    bars.to_csv('bitmex_out.csv')
